@@ -103,7 +103,7 @@ namespace ViralSpread
                 transmission,
                 mortality,
                 days,
-                simulations
+                simulations,
             };
 
             _rootCommand.Handler = CommandHandler.Create( ( Arguments x ) =>
@@ -127,7 +127,21 @@ namespace ViralSpread
         public double Mortality { get; set; }
         public int Days { get; set; }
         public int Simulations { get; set; }
+        public bool Help { get; set; }
 
-        public bool ParseCommandLine( string[] args ) =>_rootCommand.Invoke( args ) == 0;
+        public bool ParseCommandLine( string[] args )
+        {
+            var parseResult = _rootCommand.Invoke( args );
+
+            var help = _rootCommand.Options.FirstOrDefault( x => x.HasAlias( "-h" ) );
+
+            if( help != null )
+            {
+                var result = help.Parse( string.Join( " ", args ) );
+                Help = result.FindResultFor( help ) != null;
+            }
+
+            return parseResult == 0;
+        }
     }
 }

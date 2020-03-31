@@ -31,11 +31,15 @@ namespace ViralSpread
             {
                 Environment.ExitCode = 1;
 
-                Console.WriteLine("Press any key to exit");
+                Console.WriteLine( "Couldn't parse the command line; press any key to exit" );
                 Console.ReadKey();
 
                 return;
             }
+
+            // if help was requested just exit as it will already have been displayed
+            if( _arguments.Help )
+                return;
 
             Console.Clear();
 
