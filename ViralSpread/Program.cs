@@ -4,11 +4,14 @@ using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
 using Alba.CsConsoleFormat;
+using NPOI.SS.UserModel;
+using NPOI.XSSF.UserModel;
 using static System.ConsoleColor;
 using Document = Alba.CsConsoleFormat.Document;
 
@@ -41,6 +44,8 @@ namespace ViralSpread
 
             var simResults = RunSimulations();
             OutputAverageOfAllSimulations( simResults );
+
+            OutputToExcel(simResults);
 
             Console.Write("\n\nPress any key to end program");
             Console.ReadKey();
@@ -261,6 +266,119 @@ namespace ViralSpread
                 } );
 
             ConsoleRenderer.RenderDocument( byDayDoc );
+        }
+
+        private static void OutputToExcel( List<SimulationResult> simResults )
+        {
+            FileStream excelFS = null;
+
+            while( true )
+            {
+                Console.Write( "\n\nEnter file name, press return (blank to skip): " );
+                var fileName = Console.ReadLine();
+
+                if( string.IsNullOrEmpty( fileName ) )
+                    break;
+
+                fileName += ".xlsx";
+                var path = Path.Combine( Environment.CurrentDirectory, fileName );
+
+                try
+                {
+                    excelFS = File.Create( path );
+                    break;
+                }
+                catch( Exception e )
+                {
+                    Console.WriteLine($"Invalid valid name '{path}'");
+                }
+            }
+
+            if( excelFS == null )
+                return;
+
+            var workbook = new XSSFWorkbook();
+
+            var summarySheet = workbook.CreateSheet( "summary" );
+
+            var rowNum = 0;
+            AddNameValueRow<int>(summarySheet, "Population", _arguments.Population, ref rowNum );
+            AddNameValueRow<int>( summarySheet, "Number of Neighbors", _arguments.Neighbors, ref rowNum );
+            AddNameValueRow<int>( summarySheet, "Days Contagious", _arguments.Contagious, ref rowNum );
+            AddNameValueRow<int>( summarySheet, "Contacts per day", _arguments.Interactions, ref rowNum );
+            AddNameValueRow<double>( summarySheet, "Chance of transmitting infection per contact", _arguments.Transmission, ref rowNum );
+            AddNameValueRow<double>( summarySheet, "Mortality Rate", _arguments.Mortality, ref rowNum );
+            AddNameValueRow<int>( summarySheet, "Days to simulate", _arguments.Days, ref rowNum );
+            AddNameValueRow<int>( summarySheet, "Simulations to run", _arguments.Simulations, ref rowNum );
+
+            summarySheet.AutoSizeColumn(0);
+
+            var resultsSheet = workbook.CreateSheet( "results" );
+
+            var titleRow = resultsSheet.CreateRow( 0 );
+            titleRow.CreateCell(0).SetCellValue("Day");
+            titleRow.CreateCell( 1 ).SetCellValue( "Infected" );
+            titleRow.CreateCell( 2 ).SetCellValue( "Contagious" );
+            titleRow.CreateCell( 3 ).SetCellValue( "Died" );
+
+            rowNum = 1;
+
+            for( var idx = 0; idx < simResults.Count; idx++ )
+            {
+                var row = resultsSheet.CreateRow( rowNum );
+
+                row.CreateCell( 0 ).SetCellValue( idx+1 );
+                row.CreateCell( 1 ).SetCellValue( simResults[ idx ].Infected );
+                row.CreateCell( 2 ).SetCellValue( simResults[ idx ].Contagious );
+                row.CreateCell( 3 ).SetCellValue( simResults[ idx ].Died );
+
+                rowNum++;
+            }
+
+            for( var idx = 0; idx < 4; idx++ )
+            {
+                resultsSheet.AutoSizeColumn(idx);
+            }
+
+            workbook.Write(excelFS);
+        }
+
+        private static void AddNameValueRow<T>(ISheet sheet, string name, T value, ref int rowNum )
+        {
+            var row = sheet.CreateRow( rowNum );
+            row.CreateCell( 0 ).SetCellValue( name );
+
+            switch( value )
+            {
+                case bool xVal:
+                    row.CreateCell( 1 ).SetCellValue( xVal );
+                    break;
+
+                case string xVal:
+                    row.CreateCell( 1 ).SetCellValue( xVal );
+                    break;
+
+                case int xVal:
+                    row.CreateCell( 1 ).SetCellValue( xVal );
+                    break;
+
+                case double xVal:
+                    row.CreateCell( 1 ).SetCellValue( xVal );
+                    break;
+
+                case IRichTextString xVal:
+                    row.CreateCell( 1 ).SetCellValue( xVal );
+                    break;
+
+                case DateTime xVal:
+                    row.CreateCell( 1 ).SetCellValue( xVal );
+                    break;
+
+                default:
+                    return;
+            }
+
+            rowNum++;
         }
     }
 }
