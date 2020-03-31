@@ -1,8 +1,7 @@
 {
   "profiles": {
     "ViralSpread": {
-      "commandName": "Project",
-      "commandLineArgs": "-p -932"
+      "commandName": "Project"
     }
   }
 }

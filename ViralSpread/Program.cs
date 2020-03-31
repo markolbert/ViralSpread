@@ -25,7 +25,7 @@ namespace ViralSpread
         private static Person[] _population;
         private static readonly Arguments _arguments = new Arguments();
 
-        static async Task Main( string[] args )
+        static void Main( string[] args )
         {
             if( !_arguments.ParseCommandLine( args ) )
             {
@@ -36,6 +36,8 @@ namespace ViralSpread
 
                 return;
             }
+
+            Console.Clear();
 
             OutputAssumptions();
 
