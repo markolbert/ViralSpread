@@ -13,50 +13,40 @@ namespace ViralSpread
         {
             var population = new Option<int>(
                 new[] { "-p", "--population" },
-                description : "Number of people to simulate" )
-            {
-                Argument = new Argument<int>(()=>1000)
-            };
+                getDefaultValue : () => 1000,
+                description : "Number of people to simulate" );
 
             population.Argument.AddValidator(
                 x => x.GetValueOrDefault<int>() < 100 ? "Population must be >= 100" : null );
 
             var neighbors = new Option<int>(
                 new[] { "-n", "--neighbors" },
-                description : "Maximum size of a neighborhood" )
-            {
-                Argument = new Argument<int>( () => 40 )
-            };
+                getDefaultValue : () => 40,
+                description : "Maximum size of a neighborhood" );
 
             neighbors.Argument.AddValidator( x =>
                 x.GetValueOrDefault<int>() < 1 ? "Neighborhood size must be >= 1" : null );
 
             var contagious = new Option<int>(
                 new[] { "-c", "--contagious" },
-                description : "Days contagious" )
-            {
-                Argument = new Argument<int>( () => 10 )
-            };
+                () => 10,
+                description : "Days contagious" );
 
             contagious.Argument.AddValidator( x =>
                 x.GetValueOrDefault<int>() < 1 ? "Contagious period must be >= 1 day" : null );
 
             var interactions = new Option<int>(
                 new[] { "-i", "--interactions" },
-                description : "Interactions per day" )
-            {
-                Argument = new Argument<int>( () => 10 )
-            };
+                () => 10,
+                description : "Interactions per day" );
 
             interactions.Argument.AddValidator( x =>
                 x.GetValueOrDefault<int>() < 0 ? "Interactions per day must be >= 0" : null );
 
             var transmission = new Option<double>(
                 new[] { "-t", "--transmission" },
-                description : "Chance of transmitting virus per contact (decimal %; 0.1 = 10%)" )
-            {
-                Argument = new Argument<double>( () => 0.05 )
-            };
+                () => 0.05,
+                description : "Chance of transmitting virus per contact (decimal %; 0.1 = 10%)" );
 
             transmission.Argument.AddValidator( x =>
                 x.GetValueOrDefault<double>() < 0 || x.GetValueOrDefault<double>() > 1
@@ -65,10 +55,8 @@ namespace ViralSpread
 
             var mortality = new Option<double>(
                 new[] { "-m", "--mortality" },
-                description : "Mortality rate (decimal %; 0.01 = 1%)" )
-            {
-                Argument = new Argument<double>( () => 0.01 )
-            };
+                () => 0.01,
+                description : "Mortality rate (decimal %; 0.01 = 1%)" );
 
             mortality.Argument.AddValidator( x =>
                 x.GetValueOrDefault<double>() < 0 || x.GetValueOrDefault<double>() > 1
@@ -77,19 +65,15 @@ namespace ViralSpread
 
             var days = new Option<int>(
                 new[] { "-d", "--days" },
-                description : "Days to simulate" )
-            {
-                Argument = new Argument<int>( () => 60 )
-            };
+                () => 60,
+                description : "Days to simulate" );
 
             days.Argument.AddValidator( x => x.GetValueOrDefault<int>() <= 0 ? "Days to simulate must be >= 1" : null );
 
             var simulations = new Option<int>(
                 new[] { "-s", "--simulations" },
-                description : "Simulations to run" )
-            {
-                Argument = new Argument<int>( () => 10 )
-            };
+                () => 10,
+                description : "Simulations to run" );
 
             simulations.Argument.AddValidator( x =>
                 x.GetValueOrDefault<int>() <= 0 ? "Number of simulations must be >= 1" : null );
